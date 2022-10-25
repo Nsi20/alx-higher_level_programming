@@ -35,4 +35,4 @@ def pascal_triangle(prmN):
                 row.append(x + y)
         triangle.append(row)
 
-    return 
+    return triangle
