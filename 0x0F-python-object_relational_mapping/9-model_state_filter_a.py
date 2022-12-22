@@ -1,33 +1,26 @@
 #!/usr/bin/python3
-# lists all State objects that contain the letter a from a database
+'''Prints all State objects with a name that contains 'a' in a database.
+'''
+import sys
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from model_state import Base, State
 
 
-if __name__ == "__main__":
-    from model_state import Base, State
-    from sys import argv
-    import sqlalchemy
-    from sqlalchemy.engine.url import URL
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import Session
-
-    mysql = {'drivername': 'mysql+mysqldb',
-             'host': 'localhost',
-             'port': '3306',
-             'username': argv[1],
-             'password': argv[2],
-             'database': argv[3],
-             }
-
-    url = URL(**mysql)
-
-    engine = create_engine(url, pool_pre_ping=True)
-    Base.metadata.create_all(engine)
-
-    session = Session(engine)
-
-    query = session.query(State).filter(State.name.like('%a%'))\
-                                .order_by(State.id)
-    for r in query.all():
-        print("{}: {}".format(r.id, r.name))
-
-    session.close()
+if __name__ == '__main__':
+    if len(sys.argv) >= 4:
+        user = sys.argv[1]
+        pword = sys.argv[2]
+        db_name = sys.argv[3]
+        DATABASE_URL = "mysql://{}:{}@localhost:3306/{}".format(
+            user, pword, db_name
+        )
+        engine = create_engine(DATABASE_URL)
+        Base.metadata.create_all(engine)
+        session = sessionmaker(bind=engine)()
+        result = session.query(State).order_by(State.id.asc()).filter(
+            State.name.like('%a%')
+        )
+        for res in result:
+            print('{}: {}'.format(res.id, res.name))
